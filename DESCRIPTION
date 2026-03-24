@@ -1,11 +1,13 @@
 Package: itapop
-Title: What the Package Does (One Line, Title Case)
+Title: ISTAT Population Data at the Municipal Level
 Version: 0.0.0.9000
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+    c(
+    person("Giovanni", "Tinervia", , "giovannitinervia9@gmail.com", role = c("aut", "cre")),
+    person("Emanuele", "Amodio", , "emanuele.amodio@unipa.it", role = c("aut"))
+    )
+Description: Provides access to harmonized demographic data for Italian municipalities from 2002 to 2025, based on official ISTAT records. Administrative boundaries and municipal codes are standardized to the latest available configurations, resolving historical mergers and province changes to ensure consistent longitudinal panels. The package includes fast, data.table-backed functions to extract, filter, and aggregate resident and average population counts by geographic level (region, province, municipality), age, sex, and citizenship.
+License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2

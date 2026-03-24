@@ -6,8 +6,9 @@
 #'
 #' @param year Integer. The year of the resident population data to download (e.g., 2002 to 2025).
 #' @param force_download Logical. If \code{TRUE}, bypasses the interactive prompt and forces the download. Defaults to \code{FALSE}.
+#' @param overwrite Logical. If \code{TRUE}, forces the redownload of the dataset even if it already exists in the cache. Defaults to \code{FALSE}.
 #'
-#' @return A \code{data.table} containing the requested data, or \code{NULL} if the download is cancelled.
+#' @return A \code{data.table} containing the requested data, or \code{NULL} if the download is cancelled and no cached data is available.
 #' The returned dataset contains the following variables:
 #' \describe{
 #'   \item{year}{Reference year (integer).}
@@ -31,8 +32,11 @@
 #'
 #' # Automated usage (forces download without asking)
 #' df_2023 <- download_itapop_data(2023, force_download = TRUE)
+#'
+#' # Force update of a cached file
+#' df_2023 <- download_itapop_data(2023, overwrite = TRUE)
 #' }
-download_itapop_data <- function(year, force_download = FALSE) {
+download_itapop_data <- function(year, force_download = FALSE, overwrite = FALSE) {
   # 1. Input validation
   valid_years <- 2002:2025
   if (!year %in% valid_years) {
@@ -50,40 +54,58 @@ download_itapop_data <- function(year, force_download = FALSE) {
   dest_file <- file.path(cache_dir, file_name)
 
   # 3. Download logic
-  if (!file.exists(dest_file)) {
+  needs_download <- !file.exists(dest_file) || isTRUE(overwrite)
+
+  if (needs_download) {
+    do_download <- TRUE
+
     if (!force_download) {
       if (interactive()) {
-        msg <- sprintf("The dataset for year %s (approx. 3 MB) is not in cache. Do you want to download it now?", year)
+        # Modifichiamo il messaggio a seconda che il file esista già o meno
+        if (file.exists(dest_file)) {
+          msg <- sprintf("The dataset for year %s is already in cache. Do you want to overwrite and re-download it?", year)
+        } else {
+          msg <- sprintf("The dataset for year %s (approx. 3 MB) is not in cache. Do you want to download it now?", year)
+        }
         ans <- utils::menu(c("Yes", "No"), title = msg)
 
         if (ans != 1) {
-          message("Download cancelled.")
-          return(invisible(NULL))
+          do_download <- FALSE
         }
       } else {
         message("Non-interactive session. Use force_download = TRUE to proceed with the download.")
-        return(invisible(NULL))
+        do_download <- FALSE
       }
     }
 
-    # Dynamic URL for the GitHub release
-    url <- paste0(
-      "https://github.com/giovannitinervia9/itapop/releases/download/v0.1.0-data/",
-      file_name
-    )
+    if (do_download) {
+      # Dynamic URL for the GitHub release
+      url <- paste0(
+        "https://github.com/giovannitinervia9/itapop/releases/download/v0.1.0-data/",
+        file_name
+      )
 
-    message("Downloading ", file_name, "...")
+      message("Downloading ", file_name, "...")
 
-    tryCatch(
-      {
-        utils::download.file(url, destfile = dest_file, mode = "wb", quiet = TRUE)
-        message("Download completed and saved to cache.")
-      },
-      error = function(e) {
-        if (file.exists(dest_file)) file.remove(dest_file)
-        stop("Error downloading from GitHub repository: ", e$message)
+      tryCatch(
+        {
+          utils::download.file(url, destfile = dest_file, mode = "wb", quiet = TRUE)
+          message("Download completed and saved to cache.")
+        },
+        error = function(e) {
+          if (file.exists(dest_file)) file.remove(dest_file)
+          stop("Error downloading from GitHub repository: ", e$message)
+        }
+      )
+    } else {
+      # Se il download è stato annullato ma il file esiste, lo carichiamo comunque
+      if (!file.exists(dest_file)) {
+        message("Download cancelled. No data to load.")
+        return(invisible(NULL))
+      } else {
+        message("Overwrite cancelled. Loading existing data from cache instead...")
       }
-    )
+    }
   } else {
     message("Data already in cache. Loading...")
   }

@@ -14,7 +14,7 @@ A tibble with 110 rows and 4 variables:
 }
 }
 \source{
-\url{https://www.istat.it/}
+\url{https://www.istat.it/classificazione/codici-dei-comuni-delle-province-e-delle-regioni/}
 }
 \usage{
 province_code

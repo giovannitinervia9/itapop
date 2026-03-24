@@ -7,15 +7,17 @@
 \url{https://demo.istat.it/}
 }
 \usage{
-download_itapop_data(year, force_download = FALSE)
+download_itapop_data(year, force_download = FALSE, overwrite = FALSE)
 }
 \arguments{
 \item{year}{Integer. The year of the resident population data to download (e.g., 2002 to 2025).}
 
 \item{force_download}{Logical. If \code{TRUE}, bypasses the interactive prompt and forces the download. Defaults to \code{FALSE}.}
+
+\item{overwrite}{Logical. If \code{TRUE}, forces the redownload of the dataset even if it already exists in the cache. Defaults to \code{FALSE}.}
 }
 \value{
-A \code{data.table} containing the requested data, or \code{NULL} if the download is cancelled.
+A \code{data.table} containing the requested data, or \code{NULL} if the download is cancelled and no cached data is available.
 The returned dataset contains the following variables:
 \describe{
 \item{year}{Reference year (integer).}
@@ -41,5 +43,8 @@ df_2022 <- download_itapop_data(2022)
 
 # Automated usage (forces download without asking)
 df_2023 <- download_itapop_data(2023, force_download = TRUE)
+
+# Force update of a cached file
+df_2023 <- download_itapop_data(2023, overwrite = TRUE)
 }
 }

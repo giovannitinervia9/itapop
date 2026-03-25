@@ -50,22 +50,22 @@
 #' df_2023_updated <- get_itapop(2023, overwrite = TRUE, as_data_frame = TRUE)
 #' }
 get_itapop <- function(
-  years,
-  geo_level = c("municipality", "province", "region", "national"),
-  by_sex = TRUE,
-  by_citizenship = TRUE,
-  by_age = TRUE,
-  include_names = TRUE,
-  force_download = FALSE,
-  overwrite = FALSE,
-  as_data_frame = TRUE
-) {
+    years,
+    geo_level = c("municipality", "province", "region", "national"),
+    by_sex = TRUE,
+    by_citizenship = TRUE,
+    by_age = TRUE,
+    include_names = TRUE,
+    force_download = FALSE,
+    overwrite = FALSE,
+    as_data_frame = TRUE) {
   geo_level <- match.arg(geo_level)
 
   # 1. Fetch data for all requested years
   data_list <- lapply(years, function(y) {
     download_itapop_data(year = y, force_download = force_download, overwrite = overwrite)
   })
+  gc()
 
   # Clean up any NULLs (if download was cancelled)
   data_list <- Filter(Negate(is.null), data_list)

@@ -115,6 +115,7 @@ download_itapop_data <- function(year, force_download = FALSE, overwrite = FALSE
   load(dest_file, envir = temp_env)
 
   obj_name <- ls(temp_env)[1]
+  gc()
 
   return(temp_env[[obj_name]])
 }
